@@ -136,3 +136,54 @@ def search_in_local_files(query):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+@app.route("/ip-info", methods=["GET"])
+def ip_info():
+    import requests
+    from flask import request, jsonify
+
+    ip = request.args.get("ip")
+    if not ip:
+        return jsonify({"error": "IP не указан"}), 400
+
+    # 1. Основная инфа из ip-api
+    try:
+        geo = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,city,country,isp,timezone,org,as,reverse,proxy,query").json()
+        if geo["status"] != "success":
+            return jsonify({"error": geo.get("message", "Ошибка geo API")}), 400
+    except Exception as e:
+        return jsonify({"error": "Ошибка при обращении к ip-api.com"}), 500
+
+    # 2. Уязвимости / порты из Shodan
+    from shodan import Shodan
+    shodan_key = os.getenv("SHODAN_API_KEY")
+    ports = []
+    try:
+        if shodan_key:
+            api = Shodan(shodan_key)
+            host = api.host(ip)
+            ports = host.get("ports", [])
+    except:
+        pass
+
+    # 3. Privacy score (условный скоринг)
+    privacy_score = 0
+    if geo.get("proxy"): privacy_score += 2
+    if geo.get("org", "").lower() in ["mullvad", "nordvpn", "expressvpn"]: privacy_score += 2
+    if "vpn" in geo.get("org", "").lower(): privacy_score += 1
+    if geo.get("country", "").lower() != "russia": privacy_score += 1
+
+    # 4. Ответ
+    return jsonify({
+        "city": geo.get("city"),
+        "country": geo.get("country"),
+        "isp": geo.get("isp"),
+        "timezone": geo.get("timezone"),
+        "local_time": None,  # опционально — можно рассчитать
+        "proxy": geo.get("proxy", False),
+        "asn": geo.get("as"),
+        "reverse_dns": geo.get("reverse"),
+        "ports": ports,
+        "privacy_score": privacy_score
+    })
