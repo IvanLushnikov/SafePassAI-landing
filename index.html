@@ -80,6 +80,13 @@
         <button type="submit">Проверить</button>
       </form>
       <div id="shodanResult"></div>
+<p class="warning" style="margin-top: 20px; font-size: 0.95em;">
+  Мы не храним ваши данные, мы берем их из открытых источников.
+  Для того, чтобы узнать откуда данная информация — можете ознакомиться на 
+  <a href="https://habr.com/ru/companies/Linx/articles/526508/" target="_blank">Хабр</a>,
+  а как удалить — также можете узнать там.
+</p>
+
     </section>
   </main>
   <footer><p>© 2025 SafePassAI</p></footer>
@@ -204,8 +211,12 @@
         html += `<li><strong>VPN/Proxy:</strong> ${data.proxy || 'Не обнаружено'}</li>`;
         html += `<li><strong>ASN:</strong> ${data.asn || 'n/a'}</li>`;
         html += `<li><strong>Reverse DNS:</strong> ${data.reverse_dns || 'n/a'}</li>`;
-        html += `<li><strong>Shodan порты:</strong> ${data.ports?.join(', ') || 'n/a'}</li>`;
-        html += `<li><strong>Privacy score:</strong> ${data.privacy_score || 'n/a'}</li>`;
+        html += `<li><strong>Shodan порты:</strong> ${data.ports?.join(', ') || 'не найдено'}</li>`;
+        
+      if (data.privacy_score_text) {
+        html += `<li><strong>Privacy score:</strong> ${data.privacy_score} — ${data.privacy_score_text}</li>`;
+      }
+
         html += '</ul>';
         resultDiv.innerHTML = html;
       } catch {
