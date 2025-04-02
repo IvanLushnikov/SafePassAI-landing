@@ -73,6 +73,7 @@
     </section>
 
     <section id="tab-shodan" class="tab-content">
+      <p id="ipInfoMessage">Определяем ваш IP...</p>
       <p>Введите IP-адрес — мы покажем, какие открытые порты и сервисы видны из интернета.</p>
       <form id="shodanForm">
         <input type="text" id="ipInput" placeholder="Введите IP-адрес..." required />
@@ -173,6 +174,61 @@
         resultDiv.innerHTML = '<p class="success">IP не найден.</p>';
       }
     });
-  </script>
+  
+    async function fetchClientIP() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        return data.ip;
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchIPInfo(ip) {
+      const resultDiv = document.getElementById('shodanResult');
+      resultDiv.innerHTML = '<p class="loading">Загружаем информацию об IP...</p>';
+      try {
+        const res = await fetch(`https://safe-pass-api.onrender.com/ip-info?ip=${ip}`);
+        const data = await res.json();
+        if (data.error) {
+          resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+          return;
+        }
+        let html = `<p class="success">Информация по IP ${ip}:</p><ul>`;
+        html += `<li><strong>Город:</strong> ${data.city || 'n/a'}</li>`;
+        html += `<li><strong>Страна:</strong> ${data.country || 'n/a'}</li>`;
+        html += `<li><strong>Провайдер:</strong> ${data.isp || 'n/a'}</li>`;
+        html += `<li><strong>Часовой пояс:</strong> ${data.timezone || 'n/a'}</li>`;
+        html += `<li><strong>Местное время:</strong> ${data.local_time || 'n/a'}</li>`;
+        html += `<li><strong>VPN/Proxy:</strong> ${data.proxy || 'Не обнаружено'}</li>`;
+        html += `<li><strong>ASN:</strong> ${data.asn || 'n/a'}</li>`;
+        html += `<li><strong>Reverse DNS:</strong> ${data.reverse_dns || 'n/a'}</li>`;
+        html += `<li><strong>Shodan порты:</strong> ${data.ports?.join(', ') || 'n/a'}</li>`;
+        html += `<li><strong>Privacy score:</strong> ${data.privacy_score || 'n/a'}</li>`;
+        html += '</ul>';
+        resultDiv.innerHTML = html;
+      } catch {
+        resultDiv.innerHTML = '<p class="error">Ошибка при получении данных.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const ip = await fetchClientIP();
+      if (ip) {
+        document.getElementById('ipInfoMessage').textContent = `Ваш IP: ${ip}`;
+        document.getElementById('ipInput').value = ip;
+        fetchIPInfo(ip);
+      } else {
+        document.getElementById('ipInfoMessage').textContent = 'Не удалось определить ваш IP';
+      }
+    });
+
+    document.getElementById('shodanForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const ip = document.getElementById('ipInput').value;
+      fetchIPInfo(ip);
+    });
+</script>
 </body>
 </html>
