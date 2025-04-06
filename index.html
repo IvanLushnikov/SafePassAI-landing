@@ -1,173 +1,109 @@
 <!DOCTYPE html>
 <html lang="ru" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SafePassAI — Проверка безопасности</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = { darkMode: 'class' }
-    </script>
-    <link rel="icon" href="/favicon.ico" />
-  </head>
-  <body class="bg-gray-900 text-gray-100 font-sans">
-    <header class="w-full px-6 py-4 flex items-center justify-between border-b border-gray-800">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafePassAI — Проверка безопасности</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans flex flex-col min-h-screen">
+  <header class="w-full px-6 py-4 flex items-center justify-between border-b border-gray-800">
+    <div class="flex gap-6 items-center">
       <h1 class="text-xl font-bold">SafePassAI <span class="text-sm bg-yellow-500 text-black px-2 py-1 rounded ml-2">Beta</span></h1>
-      <div class="flex gap-4">
-        <a href="https://t.me/SafePassAIBot" class="hover:underline" target="_blank">TG-бот</a>
-        <button id="themeToggle">🌙/☀️</button>
-      </div>
-    </header>
+      <nav class="hidden md:flex gap-4">
+        <a href="/" class="hover:underline">Проверка</a>
+        <a href="/generate" class="hover:underline">Генерация пароля</a>
+        <a href="/security" class="hover:underline">Блог безопасности</a>
+        <a href="/about" class="hover:underline">О проекте</a>
+      </nav>
+    </div>
+    <div class="flex gap-4">
+      <a href="https://t.me/SafePassAIBot" class="hover:underline" target="_blank">TG-бот</a>
+      <button id="themeToggle">🌙/☀️</button>
+    </div>
+  </header>
 
-    <main class="p-6 max-w-4xl mx-auto">
-      <!-- Hero -->
-      <section class="text-center my-10">
-        <h2 class="text-3xl font-bold mb-4">Проверь, не скомпрометированы ли твои данные</h2>
-        <p class="text-gray-400 mb-6">Проверка по email, IP, телефону и даже угадывание паролей</p>
-      </section>
+  <main class="p-6 max-w-4xl mx-auto flex-grow">
+    <!-- Hero -->
+    <section class="text-center my-10">
+      <h2 class="text-3xl font-bold mb-4">Проверь, не скомпрометированы ли твои данные</h2>
+      <p class="text-gray-400 mb-6">Проверка по email, IP, телефону и даже угадывание паролей</p>
+    </section>
 
-      <!-- Вкладки -->
-      <div class="flex justify-center gap-2 mb-6">
-        <button class="tab-btn px-4 py-2 rounded bg-green-600" data-tab="ip">IP</button>
-        <button class="tab-btn px-4 py-2 rounded bg-gray-700" data-tab="leak">Утечки</button>
-        <button class="tab-btn px-4 py-2 rounded bg-gray-700" data-tab="akinator">Акинатор</button>
-      </div>
+    <!-- Проверка по IP -->
+    <section class="mb-12">
+      <h3 class="text-xl font-semibold mb-4">Проверка по IP</h3>
+      <p id="ipMessage" class="text-sm text-gray-400 mb-2">Определяем ваш IP...</p>
+      <form id="ipForm" class="flex gap-2 mb-4">
+        <input id="ipInput" type="text" placeholder="Введите IP..." class="flex-1 px-3 py-2 rounded bg-gray-800" required />
+        <button type="submit" class="px-4 py-2 bg-blue-600 rounded">Проверить</button>
+      </form>
+      <div id="ipResult" class="text-sm"></div>
+    </section>
+  </main>
 
-      <!-- IP Check -->
-      <section id="tab-ip" class="tab-section">
-        <p class="mb-4">Мы определим ваш IP и проверим: гео, VPN/Proxy, риск анонимности и открытые порты.</p>
-        <form id="ipForm" class="flex gap-2 mb-4">
-          <input id="ipInput" type="text" placeholder="Введите IP..." class="flex-1 px-3 py-2 rounded bg-gray-800" required />
-          <button type="submit" class="px-4 py-2 bg-blue-600 rounded">Проверить</button>
-        </form>
-        <div id="ipResult" class="text-sm"></div>
-      </section>
+  <footer class="text-center text-gray-500 text-sm py-6 border-t border-gray-800">
+    © 2025 SafePassAI
+  </footer>
 
-      <!-- Leak Check -->
-      <section id="tab-leak" class="tab-section hidden">
-        <form id="leakForm" class="flex gap-2 mb-4">
-          <input id="queryInput" type="text" placeholder="Email или телефон..." class="flex-1 px-3 py-2 rounded bg-gray-800" required />
-          <button type="submit" class="px-4 py-2 bg-blue-600 rounded">Проверить</button>
-        </form>
-        <div id="leakResult" class="text-sm"></div>
-      </section>
+  <script>
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
 
-      <!-- Akinator -->
-      <section id="tab-akinator" class="tab-section hidden">
-        <div id="akinatorQuestion">Используешь имя в пароле?</div>
-        <div class="mt-4 flex gap-2">
-          <button class="akinator-btn px-3 py-1 bg-green-600 rounded" data-answer="yes">Да</button>
-          <button class="akinator-btn px-3 py-1 bg-red-600 rounded" data-answer="no">Нет</button>
-          <button class="akinator-btn px-3 py-1 bg-gray-600 rounded" data-answer="maybe">Не знаю</button>
-        </div>
-        <div id="akinatorResult" class="mt-4 text-sm"></div>
-      </section>
-    </main>
+    async function fetchClientIP() {
+      const res = await fetch('https://api.ipify.org?format=json');
+      return (await res.json()).ip;
+    }
 
-    <footer class="text-center text-gray-500 text-sm py-6 border-t border-gray-800">
-      © 2025 SafePassAI
-    </footer>
+    async function fetchIPInfo(ip) {
+      const res = await fetch(`https://safe-pass-api.onrender.com/ip-info?ip=${ip}`);
+      return await res.json();
+    }
 
-    <script>
-      const sections = document.querySelectorAll('.tab-section');
-      const tabs = document.querySelectorAll('.tab-btn');
-      tabs.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabs.forEach(b => b.classList.replace('bg-green-600', 'bg-gray-700'));
-          btn.classList.replace('bg-gray-700', 'bg-green-600');
-          sections.forEach(sec => sec.classList.add('hidden'));
-          document.querySelector(`#tab-${btn.dataset.tab}`).classList.remove('hidden');
-        });
-      });
+    document.addEventListener('DOMContentLoaded', async () => {
+      const ip = await fetchClientIP();
+      document.getElementById('ipInput').value = ip;
+      document.getElementById('ipMessage').textContent = `Ваш IP: ${ip} (можно изменить)`;
+      const data = await fetchIPInfo(ip);
+      renderIPResult(data);
+    });
 
-      document.getElementById('themeToggle').addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-      });
+    document.getElementById('ipForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const ip = document.getElementById('ipInput').value;
+      const data = await fetchIPInfo(ip);
+      renderIPResult(data);
+    });
 
-      async function fetchClientIP() {
-        const res = await fetch('https://api.ipify.org?format=json');
-        return (await res.json()).ip;
-      }
+    function renderIPResult(data) {
+      const div = document.getElementById('ipResult');
+      if (data.error) return div.innerHTML = `<span class='text-red-400'>${data.error}</span>`;
+      div.innerHTML = `
+        <p><strong>Город:</strong> ${data.city || 'не найдено'}</p>
+        <p><strong>Страна:</strong> ${data.country || 'не найдено'}</p>
+        <p><strong>Провайдер:</strong> ${data.isp || 'не найдено'}</p>
+        <p><strong>Часовой пояс:</strong> ${data.timezone || 'не найдено'}</p>
+        <p><strong>Местное время:</strong> ${data.local_time || 'не определено'}</p>
+        <p><strong>VPN/Proxy:</strong> ${data.proxy ? 'Да' : 'Нет'}</p>
+        <p><strong>ASN:</strong> ${data.asn || 'не найдено'}</p>
+        <p><strong>Reverse DNS:</strong> ${data.reverse_dns || 'не найдено'}</p>
+        <p><strong>Shodan уязвимости:</strong> ${data.ports?.join(', ') || 'не найдено'}</p>
+        <p><strong>Скорость интернета:</strong> ${data.speed || 'не измерялась'}</p>
+        <p><strong>Privacy Score:</strong> ${data.privacy_score ?? '—'} (${explainPrivacy(data.privacy_score)})</p>
+      `;
+    }
 
-      async function fetchIPInfo(ip) {
-        const res = await fetch(`https://safe-pass-api.onrender.com/ip-info?ip=${ip}`);
-        return await res.json();
-      }
-
-      document.addEventListener('DOMContentLoaded', async () => {
-        const ip = await fetchClientIP();
-        document.getElementById('ipInput').value = ip;
-        const data = await fetchIPInfo(ip);
-        renderIPResult(data);
-      });
-
-      document.getElementById('ipForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        const ip = document.getElementById('ipInput').value;
-        const data = await fetchIPInfo(ip);
-        renderIPResult(data);
-      });
-
-      function renderIPResult(data) {
-        const div = document.getElementById('ipResult');
-        if (data.error) return div.innerHTML = `<span class='text-red-400'>${data.error}</span>`;
-        div.innerHTML = `
-          <p><strong>Город:</strong> ${data.city || 'не найдено'}</p>
-          <p><strong>Страна:</strong> ${data.country || 'не найдено'}</p>
-          <p><strong>VPN/Proxy:</strong> ${data.proxy ? 'Да' : 'Нет'}</p>
-          <p><strong>ASN:</strong> ${data.asn || 'не найдено'}</p>
-          <p><strong>Reverse DNS:</strong> ${data.reverse_dns || 'не найдено'}</p>
-          <p><strong>Privacy Score:</strong> ${data.privacy_score ?? '—'}</p>
-        `;
-      }
-
-      document.getElementById('leakForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        const query = document.getElementById('queryInput').value;
-        const res = await fetch(`https://safe-pass-api.onrender.com/check?query=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        const div = document.getElementById('leakResult');
-        if (data && data.found) {
-          div.innerHTML = `<p class='text-green-400'>Найдены утечки: ${data.found}</p><ul class='list-disc ml-5'>` +
-            data.results.map(r => `<li>${r.name || r.source}</li>`).join('') + '</ul>';
-        } else {
-          div.innerHTML = `<p class='text-yellow-400'>Утечек не найдено</p>`;
-        }
-      });
-
-      // Akinator
-      const questions = [
-        { q: "Ты используешь своё имя в пароле?", key: "name" },
-        { q: "Добавляешь ли ты цифры типа 123?", key: "nums" },
-        { q: "Включаешь год рождения?", key: "year" },
-        { q: "Используешь заглавные буквы?", key: "caps" },
-      ];
-      let answers = {}, current = 0;
-      document.querySelectorAll('.akinator-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          answers[questions[current].key] = btn.dataset.answer;
-          current++;
-          if (current < questions.length) {
-            document.getElementById('akinatorQuestion').textContent = questions[current].q;
-          } else {
-            showGuesses();
-          }
-        });
-      });
-
-      function showGuesses() {
-        const guesses = [];
-        const name = 'ivan', year = '2001';
-        if (answers.name === 'yes') guesses.push(name);
-        if (answers.name === 'yes' && answers.nums === 'yes') guesses.push(name + '123');
-        if (answers.caps === 'yes') guesses.push(name.charAt(0).toUpperCase() + name.slice(1));
-        if (answers.year === 'yes') guesses.push(name + year);
-        if (guesses.length === 0) guesses.push('password123', 'qwerty', '12345678');
-        document.getElementById('akinatorQuestion').textContent = 'Возможные пароли:';
-        document.getElementById('akinatorResult').innerHTML = '<ul class="list-disc ml-5">' +
-          guesses.map(g => `<li>${g}</li>`).join('') + '</ul>';
-        document.querySelectorAll('.akinator-btn').forEach(b => b.style.display = 'none');
-      }
-    </script>
-  </body>
+    function explainPrivacy(score) {
+      if (score === 0) return 'Возможна утечка данных (низкий уровень анонимности)';
+      if (score <= 2) return 'Обнаружены признаки прокси/VPN';
+      if (score >= 3) return 'Высокий уровень анонимности';
+      return 'нет данных';
+    }
+  </script>
+</body>
 </html>
