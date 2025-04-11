@@ -1,10 +1,10 @@
 import os
+import openai
 
 print("📁 Текущая директория:", os.getcwd())
 print("📂 Содержимое директории:", os.listdir(os.getcwd()))
 
 import csv
-import openai
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -54,8 +54,7 @@ def ask():
         prompt = f"Ты эксперт по 44-ФЗ. Ответь на вопрос пользователя максимально полно:\n\nВопрос: {user_question}"
 
     try:
-        # Обновленный метод для работы с openai
-        response = openai.ChatCompletion.create(
+        response = openai.Completion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
