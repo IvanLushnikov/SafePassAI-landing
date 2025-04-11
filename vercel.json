@@ -2,6 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/security/articles.json", "destination": "/articles.json" }
+    { "source": "/security/articles.json", "destination": "/articles.json" },
+    { "source": "/ask", "destination": "https://safe-pass-api.onrender.com/ask" }
   ]
 }
