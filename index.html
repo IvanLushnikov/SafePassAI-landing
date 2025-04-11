@@ -269,11 +269,11 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
       try {
-        const res = await fetch('https://твой-бекенд-домен/ask', {  // <-- сюда вставь URL своего Flask-бекенда
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
-        });
+const res = await fetch('https://safe-pass-api.onrender.com/ask', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ question })
+});
         const data = await res.json();
         chatMessages.innerHTML += `<div><b>GPT:</b> ${data.answer}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
