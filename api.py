@@ -11,15 +11,14 @@ import requests
 from shodan import Shodan
 from datetime import datetime
 import pytz
+from pathlib import Path
 
 # --- Настройки Flask и OpenAI ---
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-openai.api_key = os.environ.get("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")
+openai.api_key = os.environ.get("OPENAI_API_KEY")  # ← безопаснее, чем хранить ключ в коде
 
 # --- Загрузка базы знаний из CSV ---
-from pathlib import Path
-
 knowledge_base = []
 try:
     kb_path = Path(__file__).resolve().parent / "knowledge_base.csv"
@@ -59,7 +58,7 @@ def ask():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# --- Остальные маршруты (без изменений) ---
+# --- Остальные маршруты ---
 @app.route("/check", methods=["GET"])
 def check_leak():
     query = request.args.get("query")
