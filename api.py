@@ -4,7 +4,7 @@ print("📁 Текущая директория:", os.getcwd())
 print("📂 Содержимое директории:", os.listdir(os.getcwd()))
 
 import csv
-import openai
+from openai import OpenAI
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -16,7 +16,7 @@ from pathlib import Path
 # --- Настройки Flask и OpenAI ---
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-openai.api_key = os.environ.get("OPENAI_API_KEY")  # ← безопаснее, чем хранить ключ в коде
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))  # безопасно
 
 # --- Загрузка базы знаний из CSV ---
 knowledge_base = []
@@ -54,17 +54,15 @@ def ask():
         prompt = f"Ты эксперт по 44-ФЗ. Ответь на вопрос пользователя максимально полно:\n\nВопрос: {user_question}"
 
     try:
-        response = openai.ChatCompletion.create(
+        chat_completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
-        answer = response.choices[0].message["content"]
+        answer = chat_completion.choices[0].message.content
         return jsonify({"answer": answer})
     except Exception as e:
         print("❌ Ошибка OpenAI:", e)
         return jsonify({"error": str(e)}), 500
-
-
 
 # --- Остальные маршруты ---
 @app.route("/check", methods=["GET"])
