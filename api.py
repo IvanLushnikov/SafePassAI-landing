@@ -4,7 +4,7 @@ print("📁 Текущая директория:", os.getcwd())
 print("📂 Содержимое директории:", os.listdir(os.getcwd()))
 
 import csv
-from openai import OpenAI
+import openai
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
