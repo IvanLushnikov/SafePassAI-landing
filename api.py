@@ -15,10 +15,11 @@ openai.api_key = os.environ.get("sk-proj-x0_SJ8Oa9IJDEv9vdhgkKsDVQrPy8zZoW97IRzT
 
 # --- Загрузка базы знаний из CSV ---
 from pathlib import Path
+
 knowledge_base = []
 try:
     base_path = Path(__file__).parent
-kb_path = Path("/opt/render/project/knowledge_base.csv")
+    kb_path = Path("/opt/render/project/knowledge_base.csv")  # ← внутри try!
     with open(kb_path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter=";")
         for row in reader:
