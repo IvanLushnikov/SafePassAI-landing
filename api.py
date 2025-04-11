@@ -14,14 +14,18 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 openai.api_key = os.environ.get("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")
 
 # --- Загрузка базы знаний из CSV ---
+from pathlib import Path
 knowledge_base = []
 try:
-    with open("knowledge_base.csv", encoding="utf-8") as f:
+    base_path = Path(__file__).parent
+    kb_path = base_path / "knowledge_base.csv"
+    with open(kb_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             knowledge_base.append({"question": row["question"], "answer": row["answer"]})
 except Exception as e:
     print(f"Ошибка при загрузке базы знаний: {e}")
+
 
 # --- Поиск по базе ---
 def simple_search(user_question):
