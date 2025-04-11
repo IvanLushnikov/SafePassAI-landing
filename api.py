@@ -16,7 +16,7 @@ from pathlib import Path
 # --- Настройки Flask и OpenAI ---
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))  # безопасно
+client = openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # --- Загрузка базы знаний из CSV ---
 knowledge_base = []
