@@ -42,9 +42,14 @@ def simple_search(user_question):
 def ask():
     data = request.get_json()
     user_question = data.get("question", "")
-    context_items = simple_search(user_question)
+    print("📥 Вопрос пользователя:", user_question)
 
+    context_items = simple_search(user_question)
     context = "\n\n".join([f"Вопрос: {i['question']}\nОтвет: {i['answer']}" for i in context_items])
+    print("📚 Контекст:", context)
+
+    if not context.strip():
+        return jsonify({"answer": "Извините, не удалось найти подходящий ответ в базе знаний."})
 
     prompt = f"Ты эксперт по 44-ФЗ. Используй контекст ниже, чтобы ответить на вопрос:\n\n{context}\n\nВопрос: {user_question}"
 
@@ -56,7 +61,9 @@ def ask():
         answer = response.choices[0].message["content"]
         return jsonify({"answer": answer})
     except Exception as e:
+        print("❌ Ошибка OpenAI:", e)
         return jsonify({"error": str(e)}), 500
+
 
 # --- Остальные маршруты ---
 @app.route("/check", methods=["GET"])
