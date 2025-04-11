@@ -1,4 +1,8 @@
 import os
+
+print("📁 Текущая директория:", os.getcwd())
+print("📂 Содержимое директории:", os.listdir(os.getcwd()))
+
 import csv
 import openai
 from flask import Flask, request, jsonify
