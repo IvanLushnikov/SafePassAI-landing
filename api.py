@@ -18,7 +18,7 @@ from pathlib import Path
 knowledge_base = []
 try:
     base_path = Path(__file__).parent
-    kb_path = base_path / "knowledge_base.csv"
+kb_path = Path("/opt/render/project/knowledge_base.csv")
     with open(kb_path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter=";")
         for row in reader:
