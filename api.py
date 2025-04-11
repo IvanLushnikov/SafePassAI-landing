@@ -54,11 +54,10 @@ def ask():
         prompt = f"Ты эксперт по 44-ФЗ. Ответь на вопрос пользователя максимально полно:\n\nВопрос: {user_question}"
 
     try:
-        # Правильный вызов метода OpenAI для генерации ответа
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
-        )
+      response = openai.chat_completions.create(
+    model="gpt-3.5-turbo",
+    messages=[{"role": "user", "content": prompt}]
+)
         answer = response.choices[0].message["content"]
         return jsonify({"answer": answer})
     except Exception as e:
