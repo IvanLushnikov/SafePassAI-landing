@@ -16,7 +16,7 @@ from pathlib import Path
 # --- Настройки Flask и OpenAI ---
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-openai.api_key = os.environ.get("OPENAI_API_KEY")  # Здесь подключаем ключ API
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # --- Загрузка базы знаний из CSV ---
 knowledge_base = []
@@ -54,11 +54,12 @@ def ask():
         prompt = f"Ты эксперт по 44-ФЗ. Ответь на вопрос пользователя максимально полно:\n\nВопрос: {user_question}"
 
     try:
-      response = openai.chat_completions.create(
-    model="gpt-3.5-turbo",
-    messages=[{"role": "user", "content": prompt}]
-)
-        answer = response.choices[0].message["content"]
+        # Обновленный метод для работы с openai
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        answer = response.choices[0].message['content']
         return jsonify({"answer": answer})
     except Exception as e:
         print("❌ Ошибка OpenAI:", e)
