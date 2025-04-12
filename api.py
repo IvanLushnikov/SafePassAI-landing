@@ -1,9 +1,4 @@
 import os
-import openai
-
-print("📁 Текущая директория:", os.getcwd())
-print("📂 Содержимое директории:", os.listdir(os.getcwd()))
-
 import csv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -13,10 +8,9 @@ from datetime import datetime
 import pytz
 from pathlib import Path
 
-# --- Настройки Flask и OpenAI ---
+# --- Настройки Flask ---
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # --- Загрузка базы знаний из CSV ---
 knowledge_base = []
@@ -36,34 +30,6 @@ def simple_search(user_question):
         if user_question.lower() in item["question"].lower():
             results.append(item)
     return results[:3]
-
-# --- Маршрут для GPT-чата ---
-@app.route("/ask", methods=["POST"])
-def ask():
-    data = request.get_json()
-    user_question = data.get("question", "")
-    print("📥 Вопрос пользователя:", user_question)
-
-    context_items = simple_search(user_question)
-    context = "\n\n".join([f"Вопрос: {i['question']}\nОтвет: {i['answer']}" for i in context_items])
-    print("📚 Контекст:", context)
-
-    if context.strip():
-        prompt = f"Ты эксперт по 44-ФЗ. Используй контекст ниже, чтобы ответить на вопрос:\n\n{context}\n\nВопрос: {user_question}"
-    else:
-        prompt = f"Ты эксперт по 44-ФЗ. Ответь на вопрос пользователя максимально полно:\n\nВопрос: {user_question}"
-
-    try:
-        # Новый подход с OpenAI API
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        answer = response.choices[0].message["content"]
-        return jsonify({"answer": answer})
-    except Exception as e:
-        print("❌ Ошибка OpenAI:", e)
-        return jsonify({"error": str(e)}), 500
 
 # --- Остальные маршруты ---
 @app.route("/check", methods=["GET"])
