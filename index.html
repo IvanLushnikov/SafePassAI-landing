@@ -16,7 +16,7 @@
     .error { color: red; }
     .success { color: green; }
     .warning { color: orange; }
-  
+
 .warning a {
   color: orange;
   text-decoration: underline;
@@ -24,8 +24,7 @@
 .warning a:hover {
   color: #ffae42;
 }
-
-</style>
+  </style>
 </head>
 <body>
   <header>
@@ -89,13 +88,12 @@
         <button type="submit">Проверить</button>
       </form>
       <div id="shodanResult"></div>
-<p class="warning" style="margin-top: 20px; font-size: 0.95em;">
-  Мы не храним ваши данные, мы берем их из открытых источников.
-  Для того, чтобы узнать откуда данная информация — можете ознакомиться на 
-  <a href="https://habr.com/ru/companies/Linx/articles/526508/" target="_blank">Хабр</a>,
-  а как удалить — также можете узнать там.
-</p>
-
+      <p class="warning" style="margin-top: 20px; font-size: 0.95em;">
+        Мы не храним ваши данные, мы берем их из открытых источников.
+        Для того, чтобы узнать откуда данная информация — можете ознакомиться на 
+        <a href="https://habr.com/ru/companies/Linx/articles/526508/" target="_blank">Хабр</a>,
+        а как удалить — также можете узнать там.
+      </p>
     </section>
   </main>
   <footer><p>© 2025 SafePassAI</p></footer>
@@ -190,99 +188,6 @@
         resultDiv.innerHTML = '<p class="success">IP не найден.</p>';
       }
     });
-  
-    async function fetchClientIP() {
-      try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const data = await res.json();
-        return data.ip;
-      } catch {
-        return null;
-      }
-    }
-
-    async function fetchIPInfo(ip) {
-      const resultDiv = document.getElementById('shodanResult');
-      resultDiv.innerHTML = '<p class="loading">Загружаем информацию об IP...</p>';
-      try {
-        const res = await fetch(`https://safe-pass-api.onrender.com/ip-info?ip=${ip}`);
-        const data = await res.json();
-        if (data.error) {
-          resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
-          return;
-        }
-        let html = `<p class="success">Информация по IP ${ip}:</p><ul>`;
-        html += `<li><strong>Город:</strong> ${data.city || 'n/a'}</li>`;
-        html += `<li><strong>Страна:</strong> ${data.country || 'n/a'}</li>`;
-        html += `<li><strong>Провайдер:</strong> ${data.isp || 'n/a'}</li>`;
-        html += `<li><strong>Часовой пояс:</strong> ${data.timezone || 'n/a'}</li>`;
-        html += `<li><strong>Местное время:</strong> ${data.local_time || 'n/a'}</li>`;
-        html += `<li><strong>VPN/Proxy:</strong> ${data.proxy || 'Не обнаружено'}</li>`;
-        html += `<li><strong>ASN:</strong> ${data.asn || 'n/a'}</li>`;
-        html += `<li><strong>Reverse DNS:</strong> ${data.reverse_dns || 'n/a'}</li>`;
-        html += `<li><strong>Shodan порты:</strong> ${data.ports?.join(', ') || 'не найдено'}</li>`;
-        
-      if (data.privacy_score_text) {
-        html += `<li><strong>Privacy score:</strong> ${data.privacy_score} — ${data.privacy_score_text}</li>`;
-      }
-
-        html += '</ul>';
-        resultDiv.innerHTML = html;
-      } catch {
-        resultDiv.innerHTML = '<p class="error">Ошибка при получении данных.</p>';
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      const ip = await fetchClientIP();
-      if (ip) {
-        document.getElementById('ipInfoMessage').textContent = `Ваш IP: ${ip}`;
-        document.getElementById('ipInput').value = ip;
-        fetchIPInfo(ip);
-      } else {
-        document.getElementById('ipInfoMessage').textContent = 'Не удалось определить ваш IP';
-      }
-    });
-
-    document.getElementById('shodanForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const ip = document.getElementById('ipInput').value;
-      fetchIPInfo(ip);
-    });
-</script>
-  <!-- GPT-Чат-помощник -->
-<div id="chat-widget" style="position:fixed;bottom:20px;right:20px;width:320px;height:400px;background:#fff;border:1px solid #ccc;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:9999;font-family:sans-serif;display:flex;flex-direction:column;">
-  <div style="background:#4CAF50;color:white;padding:10px;border-top-left-radius:8px;border-top-right-radius:8px;">Чат с экспертом 44-ФЗ</div>
-  <div id="chat-messages" style="flex-grow:1;overflow-y:auto;padding:10px;font-size:14px;"></div>
-  <input id="chat-input" placeholder="Задайте вопрос..." style="border:none;border-top:1px solid #ccc;padding:10px;font-size:14px;" />
-</div>
-
-<script>
-  const chatInput = document.getElementById('chat-input');
-  const chatMessages = document.getElementById('chat-messages');
-
-  chatInput.addEventListener('keydown', async function(e) {
-    if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-      const question = chatInput.value.trim();
-      chatMessages.innerHTML += `<div><b>Вы:</b> ${question}</div>`;
-      chatInput.value = '';
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      try {
-const res = await fetch('https://safe-pass-api.onrender.com/ask', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ question })
-});
-        const data = await res.json();
-        chatMessages.innerHTML += `<div><b>GPT:</b> ${data.answer}</div>`;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      } catch (err) {
-        chatMessages.innerHTML += `<div style="color:red;"><b>Ошибка:</b> не удалось получить ответ</div>`;
-      }
-    }
-  });
-</script>
-
+  </script>
 </body>
 </html>
