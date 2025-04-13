@@ -10,7 +10,7 @@ from pathlib import Path
 
 # --- Настройки Flask ---
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})  # или просто CORS(app)
 
 # --- Загрузка базы знаний из CSV ---
 knowledge_base = []
