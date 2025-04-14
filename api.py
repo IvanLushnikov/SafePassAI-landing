@@ -1,48 +1,28 @@
 import os
-import csv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from shodan import Shodan
 from datetime import datetime
 import pytz
-from pathlib import Path
 
-# --- Настройки Flask ---
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# --- Загрузка базы знаний из CSV ---
-knowledge_base = []
-try:
-    kb_path = Path(__file__).resolve().parent / "knowledge_base.csv"
-    with open(kb_path, encoding="utf-8") as f:
-        reader = csv.DictReader(f, delimiter=";")
-        for row in reader:
-            knowledge_base.append({"question": row["question"], "answer": row["answer"]})
-except Exception as e:
-    print(f"Ошибка при загрузке базы знаний: {e}")
-
-# --- Поиск по базе ---
-def simple_search(user_question):
-    results = []
-    for item in knowledge_base:
-        if user_question.lower() in item["question"].lower():
-            results.append(item)
-    return results[:3]
-
-# --- Остальные маршруты ---
 @app.route("/check", methods=["GET"])
 def check_leak():
     query = request.args.get("query")
+    # Заглушка для проверки
     return jsonify({"found": 0, "results": []})
 
 @app.route("/check-password", methods=["POST"])
 def check_password():
+    # Заглушка для проверки
     return jsonify({"is_common": False, "message": "Пароль не найден в популярных"})
 
 @app.route("/generate-passwords", methods=["POST"])
 def generate_passwords():
+    # Заглушка для проверки
     return jsonify({"passwords": ["test123", "test456"]})
 
 @app.route("/ip-info", methods=["GET"])
@@ -60,6 +40,7 @@ def ip_info():
     except:
         return jsonify({"error": "Ошибка при обращении к ip-api.com"}), 500
 
+    # Получение портов из Shodan
     shodan_key = os.getenv("SHODAN_API_KEY")
     ports = []
     try:
@@ -70,18 +51,25 @@ def ip_info():
     except:
         pass
 
+    # Privacy score
     score = 0
-    if geo.get("proxy"): score += 2
-    if geo.get("org", "").lower() in ["mullvad", "nordvpn", "expressvpn"]: score += 2
-    if "vpn" in geo.get("org", "").lower(): score += 1
-    if geo.get("country", "").lower() not in ["russia", "россия"]: score += 1
+    if geo.get("proxy"):
+        score += 2
+    if geo.get("org", "").lower() in ["mullvad", "nordvpn", "expressvpn"]:
+        score += 2
+    if "vpn" in geo.get("org", "").lower():
+        score += 1
+    if geo.get("country", "").lower() not in ["russia", "россия"]:
+        score += 1
 
-    score_text = (
-        "Высокий уровень анонимности" if score >= 3 else
-        "Есть признаки использования VPN/прокси" if score >= 1 else
-        "Ваш IP легко отслеживается"
-    )
+    if score >= 3:
+        score_text = "Высокий уровень анонимности"
+    elif 1 <= score <= 2:
+        score_text = "Есть признаки использования VPN/прокси"
+    else:
+        score_text = "Ваш IP легко отслеживается"
 
+    # Локальное время
     local_time = None
     try:
         if geo.get("timezone"):
@@ -103,6 +91,3 @@ def ip_info():
         "privacy_score": score,
         "privacy_score_text": score_text
     })
-
-if __name__ == "__main__":
-    app.run(debug=True)
